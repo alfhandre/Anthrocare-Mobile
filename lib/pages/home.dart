@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_list/models/parentsModel.dart';
+import 'package:to_do_list/pages/createParent.dart';
 import 'package:to_do_list/pages/detailParent.dart';
 import 'package:to_do_list/services/parentsService.dart';
 
@@ -26,6 +27,9 @@ class _ParentsListState extends State<ParentsList> {
 
   Future<void> _fetchParentData() async {
     try {
+      setState(() {
+        isLoading = true;
+      });
       final parentService = ParentService();
       final data = await parentService.getParentData();
       setState(() {
@@ -82,105 +86,136 @@ class _ParentsListState extends State<ParentsList> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Daftar Data Orang Tua'),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
+                  return CreateParent();
+                }));
+              },
+              icon: Icon(Icons.add))
+        ],
       ),
-      body: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: FutureBuilder<List<ParentModel>>(
-              future: futureParent,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  );
-                } else {
-                  return SingleChildScrollView(
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : parentData.length > 0
+              ? Center(
+                  child: Text('Tidak ada data.'),
+                )
+              : Center(
+                  child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
-                      child: Column(children: [
-                        ...parentList.map((parent) {
-                          return Column(
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (context) {
-                                    return DetailParent(parent: parent);
-                                  }));
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 4, right: 8, bottom: 4),
-                                  child: Container(
-                                    child: Row(
-                                      children: [
-                                        CircleAvatar(
-                                          backgroundColor: Colors.transparent,
-                                          radius:
-                                              circleAvatarRadius, // Menggunakan nilai radius responsif
-                                          child: ClipOval(
-                                            child: Icon(
-                                              Icons.account_circle_rounded,
-                                              size: circleAvatarRadius *
-                                                  2, // Ukuran ikon sesuai radius
-                                              color: Colors.grey,
+                      child: FutureBuilder<List<ParentModel>>(
+                          future: futureParent,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            } else if (snapshot.hasError) {
+                              return Center(
+                                child: Text('Error: ${snapshot.error}'),
+                              );
+                            } else {
+                              return SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                  child: Column(children: [
+                                    ...parentList.map((parent) {
+                                      return Column(
+                                        children: [
+                                          InkWell(
+                                            onTap: () {
+                                              Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                      builder: (context) {
+                                                return DetailParent(
+                                                    parent: parent);
+                                              }));
+                                            },
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 4, right: 8, bottom: 4),
+                                              child: Container(
+                                                child: Row(
+                                                  children: [
+                                                    CircleAvatar(
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                      radius:
+                                                          circleAvatarRadius, // Menggunakan nilai radius responsif
+                                                      child: ClipOval(
+                                                        child: Icon(
+                                                          Icons
+                                                              .account_circle_rounded,
+                                                          size: circleAvatarRadius *
+                                                              2, // Ukuran ikon sesuai radius
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Title(
+                                                            color: Colors.grey,
+                                                            child: Text(parent
+                                                                .nama_orangtua)),
+                                                        Text(
+                                                          'Tanggal Lahir: ${parent.tgl_lahir_orangtua}',
+                                                          style: TextStyle(
+                                                              fontSize: 10,
+                                                              color:
+                                                                  Colors.grey),
+                                                        ),
+                                                        Text(
+                                                          'Alamat: ${parent.alamat}',
+                                                          style: TextStyle(
+                                                              fontSize: 10,
+                                                              color:
+                                                                  Colors.grey),
+                                                        ),
+                                                        Text(
+                                                          'No KTP: ${parent.no_ktp}',
+                                                          style: TextStyle(
+                                                              fontSize: 10,
+                                                              color:
+                                                                  Colors.grey),
+                                                        ),
+                                                        Text(
+                                                          'Golongan Darah: ${parent.gol_darah}',
+                                                          style: TextStyle(
+                                                              fontSize: 10,
+                                                              color:
+                                                                  Colors.grey),
+                                                        ),
+                                                        Text(
+                                                          'No Telepon: ${parent.no_telp}',
+                                                          style: TextStyle(
+                                                              fontSize: 10,
+                                                              color:
+                                                                  Colors.grey),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Title(
-                                                color: Colors.grey,
-                                                child:
-                                                    Text(parent.nama_orangtua)),
-                                            Text(
-                                              'Tanggal Lahir: ${parent.tgl_lahir_orangtua}',
-                                              style: TextStyle(
-                                                  fontSize: 10,
-                                                  color: Colors.grey),
-                                            ),
-                                            Text(
-                                              'Alamat: ${parent.alamat}',
-                                              style: TextStyle(
-                                                  fontSize: 10,
-                                                  color: Colors.grey),
-                                            ),
-                                            Text(
-                                              'No KTP: ${parent.no_ktp}',
-                                              style: TextStyle(
-                                                  fontSize: 10,
-                                                  color: Colors.grey),
-                                            ),
-                                            Text(
-                                              'Golongan Darah: ${parent.gol_darah}',
-                                              style: TextStyle(
-                                                  fontSize: 10,
-                                                  color: Colors.grey),
-                                            ),
-                                            Text(
-                                              'No Telepon: ${parent.no_telp}',
-                                              style: TextStyle(
-                                                  fontSize: 10,
-                                                  color: Colors.grey),
-                                            ),
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Divider(),
-                            ],
-                          );
-                        }).toList(),
-                      ]));
-                }
-              })),
+                                          Divider(),
+                                        ],
+                                      );
+                                    }).toList(),
+                                  ]));
+                            }
+                          })),
+                ),
     );
   }
 }
